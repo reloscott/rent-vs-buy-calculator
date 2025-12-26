@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Rent vs Buy Calculator | Real Time Realty</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Compare renting versus buying with this free calculator from Real Time Realty. See estimated monthly costs, long-term impact, projected equity, and tax savings.">
+  <style>
+    :root {
+      --rtr-blue: #0046ad;
+      --rtr-red:  #e10600;
+      --rtr-light: #f5f6fa;
+      --rtr-dark: #1f2933;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 0;
+      background: var(--rtr-light);
+      color: var(--rtr-dark);
+    }
+
+    .page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: #ffffff;
+      border-bottom: 4px solid var(--rtr-red);
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+    }
+
+    .header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .logo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-wrap img {
+      max-height: 60px;
+      height: auto;
+      width: auto;
+    }
+
+    .brand-text {
+      font-size: 0.9rem;
+      color: var(--rtr-dark);
+      line-height: 1.3;
+    }
+
+    .brand-text span {
+      display: block;
+    }
+
+    .hero {
+      max-width: 1100px;
+      margin: 18px auto 0;
+      padding: 0 16px 10px;
+      display: grid;
+      gap: 16px;
+    }
+
+    @media (min-width: 768px) {
+      .hero {
+        grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+        align-items: center;
+      }
+    }
+
+    .hero-title {
+      font-size: 1.9rem;
+      margin: 0 0 8px;
+      color: var(--rtr-blue);
+    }
+
+    .hero-subtitle {
+      margin: 0 0 10px;
+      color: #4b5563;
+    }
+
+    .hero-bullets {
+      margin: 0 0 10px;
+      padding-left: 18px;
+      font-size: 0.9rem;
+      color: #4b5563;
+    }
+
+    .cta-box {
+      background: #ffffff;
+      border-radius: 10px;
+      padding: 12px 14px;
+      border: 1px solid #d0d7e2;
+      font-size: 0.9rem;
+    }
+
+    .cta-box strong {
+      color: var(--rtr-red);
+    }
+
+    .cta-contact {
+      margin-top: 6px;
+      font-size: 0.9rem;
+      color: #111827;
+    }
+
+    .cta-contact a {
+      color: var(--rtr-blue);
+      text-decoration: none;
+    }
+
+    .cta-contact a:hover {
+      text-decoration: underline;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 4px auto 24px;
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 20px 16px 24px;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
+    }
+
+    .calc-title {
+      margin-top: 0;
+      font-size: 1.4rem;
+      text-align: center;
+      color: var(--rtr-blue);
+    }
+
+    p.description {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #555;
+      font-size: 0.95rem;
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    @media (min-width: 768px) {
+      .grid-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    .card {
+      background: #fafafa;
+      border-radius: 10px;
+      padding: 16px 18px;
+      border: 1px solid #e3e3e7;
+    }
+
+    .card h2 {
+      font-size: 1.1rem;
+      margin-top: 0;
+      margin-bottom: 8px;
+      color: var(--rtr-blue);
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 10px;
+    }
+
+    .field label {
+      font-size: 0.9rem;
+      margin-bottom: 4px;
+      color: #444;
+    }
+
+    .field input {
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 1px solid #cbd2e1;
+      font-size: 0.95rem;
+    }
+
+    .field input:focus {
+      outline: none;
+      border-color: var(--rtr-blue);
+      box-shadow: 0 0 0 1px rgba(0, 70, 173, 0.18);
+    }
+
+    .inline-suffix {
+      display: flex;
+      align-items: center;
+    }
+
+    .inline-suffix span {
+      margin-left: 6px;
+      font-size: 0.9rem;
+      color: #666;
+      white-space: nowrap;
+    }
+
+    .actions {
+      margin: 18px 0;
+      text-align: center;
+    }
+
+    button {
+      padding: 10px 26px;
+      border-radius: 999px;
+      border: none;
+      background: var(--rtr-red);
+      color: #fff;
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(225, 6, 0, 0.35);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-weight: 600;
+      transition: transform 0.06s ease, box-shadow 0.06s ease, background 0.1s ease;
+    }
+
+    button:hover {
+      background: #c10500;
+      transform: translateY(-1px);
+      box-shadow: 0 12px 24px rgba(193, 5, 0, 0.4);
+    }
+
+    button:active {
+      transform: translateY(0);
+      box-shadow: 0 6px 12px rgba(193, 5, 0, 0.33);
+    }
+
+    .results {
+      margin-top: 10px;
+      padding: 18px;
+      border-radius: 10px;
+      background: #eef3ff;
+      border: 1px solid #c5d6ff;
+    }
+
+    .results h2 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      color: var(--rtr-blue);
+    }
+
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      margin: 4px 0;
+      font-size: 0.95rem;
+    }
+
+    .result-row span.value {
+      font-weight: 600;
+    }
+
+    .highlight {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: #ffffff;
+      border: 1px dashed #a6b7ff;
+      font-size: 0.95rem;
+    }
+
+    .footnote {
+      margin-top: 10px;
+      font-size: 0.78rem;
+      color: #666;
+      line-height: 1.4;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #6b7280;
+      padding: 10px 8px 18px;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="header-inner">
+        <div class="logo-wrap">
+          <!-- Your logo -->
+          <img src="RTR_logo.jpg" alt="Real Time Realty Logo">
+        </div>
+        <div class="brand-text">
+          <span><strong>Real Time Realty</strong> — Real Estate Now!</span>
+          <span>Naperville & Greater Chicago Area Real Estate</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div>
+        <h1 class="hero-title">Should you keep renting or buy a home?</h1>
+        <p class="hero-subtitle">
+          Use this quick calculator to compare the estimated monthly and long-term cost of renting
+          versus buying based on your numbers.
+        </p>
+        <ul class="hero-bullets">
+          <li>Adjust home price, interest rate, taxes, and appreciation.</li>
+          <li>See your estimated monthly cost of ownership.</li>
+          <li>Compare total cash out, projected equity, and estimated tax savings.</li>
+        </ul>
+      </div>
+      <div>
+        <div class="cta-box">
+          <strong>Want a personalized plan?</strong>
+          <p class="cta-contact">
+            For a custom rent-versus-buy analysis and local market insight, contact:
+            <br>
+            Real Time Realty<br>
+            Phone: <a href="tel:16303574800">(630) 357-4800</a><br>
+            Web: <a href="https://scottgerami.com" target="_blank" rel="noopener">ScottGerami.com</a>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <main class="container">
+      <h2 class="calc-title">Rent vs Buy Calculator</h2>
+      <p class="description">
+        Enter your numbers below to compare the estimated monthly and long-term cost of renting versus buying.
+        This model is simplified and does not include all details of the tax code or selling costs.
+      </p>
+
+      <div class="grid grid-2">
+        <div class="card">
+          <h2>Home purchase assumptions</h2>
+
+          <div class="field">
+            <label for="homePrice">Home price</label>
+            <div class="inline-suffix">
+              <input type="number" id="homePrice" value="450000" min="0" step="1000" />
+              <span>$</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="downPaymentPct">Down payment</label>
+            <div class="inline-suffix">
+              <input type="number" id="downPaymentPct" value="20" min="0" max="100" step="0.5" />
+              <span>% of price</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="interestRate">Mortgage interest rate</label>
+            <div class="inline-suffix">
+              <input type="number" id="interestRate" value="6.5" min="0" max="20" step="0.1" />
+              <span>% APR</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="loanTerm">Loan term</label>
+            <div class="inline-suffix">
+              <input type="number" id="loanTerm" value="30" min="1" max="40" step="1" />
+              <span>years</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="propertyTaxRate">Property tax rate</label>
+            <div class="inline-suffix">
+              <input type="number" id="propertyTaxRate" value="2.25" min="0" max="10" step="0.05" />
+              <span>% of value / year</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="homeInsuranceYear">Homeowners insurance</label>
+            <div class="inline-suffix">
+              <input type="number" id="homeInsuranceYear" value="1500" min="0" step="50" />
+              <span>$ / year</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="maintenanceRate">Maintenance reserve</label>
+            <div class="inline-suffix">
+              <input type="number" id="maintenanceRate" value="1" min="0" max="10" step="0.1" />
+              <span>% of value / year</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="hoaFees">HOA / association fees (if any)</label>
+            <div class="inline-suffix">
+              <input type="number" id="hoaFees" value="0" min="0" step="10" />
+              <span>$ / month</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="appreciationRate">Expected annual home appreciation</label>
+            <div class="inline-suffix">
+              <input type="number" id="appreciationRate" value="5" min="0" max="15" step="0.5" />
+              <span>% per year</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="taxRate">
+              Combined marginal tax rate (federal + state)
+            </label>
+            <div class="inline-suffix">
+              <input type="number" id="taxRate" value="25" min="0" max="50" step="1" />
+              <span>% &nbsp; (0 if you don’t itemize)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Rent and time horizon</h2>
+
+          <div class="field">
+            <label for="monthlyRent">Current monthly rent</label>
+            <div class="inline-suffix">
+              <input type="number" id="monthlyRent" value="2600" min="0" step="50" />
+              <span>$ / month</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="rentGrowthRate">Expected annual rent increase</label>
+            <div class="inline-suffix">
+              <input type="number" id="rentGrowthRate" value="3" min="0" max="20" step="0.5" />
+              <span>% per year</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="horizonYears">Comparison horizon</label>
+            <div class="inline-suffix">
+              <input type="number" id="horizonYears" value="7" min="1" max="40" step="1" />
+              <span>years</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="closingCosts">Estimated buyer closing costs (optional)</label>
+            <div class="inline-suffix">
+              <input type="number" id="closingCosts" value="6000" min="0" step="500" />
+              <span>$ one-time</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="pmiRate">PMI rate (if down &lt; 20%, optional)</label>
+            <div class="inline-suffix">
+              <input type="number" id="pmiRate" value="0.5" min="0" max="5" step="0.1" />
+              <span>% of loan / year</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="calculateBtn">Calculate</button>
+      </div>
+
+      <div id="results" class="results" style="display: none;">
+        <h2>Results</h2>
+
+        <div class="result-row">
+          <span>Down payment</span>
+          <span class="value" id="resDownPayment"></span>
+        </div>
+        <div class="result-row">
+          <span>Loan amount</span>
+          <span class="value" id="resLoanAmount"></span>
+        </div>
+
+        <hr>
+
+        <div class="result-row">
+          <span>Monthly mortgage (principal + interest)</span>
+          <span class="value" id="resMortgagePayment"></span>
+        </div>
+        <div class="result-row">
+          <span>Monthly property tax</span>
+          <span class="value" id="resTaxMonthly"></span>
+        </div>
+        <div class="result-row">
+          <span>Monthly insurance</span>
+          <span class="value" id="resInsuranceMonthly"></span>
+        </div>
+        <div class="result-row">
+          <span>Monthly maintenance reserve</span>
+          <span class="value" id="resMaintenanceMonthly"></span>
+        </div>
+        <div class="result-row">
+          <span>Monthly PMI (if applicable)</span>
+          <span class="value" id="resPmiMonthly"></span>
+        </div>
+        <div class="result-row">
+          <span>HOA / association fees</span>
+          <span class="value" id="resHoaMonthly"></span>
+        </div>
+
+        <div class="result-row" style="margin-top: 8px;">
+          <span><strong>Total estimated monthly cost of owning</strong></span>
+          <span class="value" id="resOwnerTotalMonthly"></span>
+        </div>
+
+        <div class="result-row">
+          <span>Current monthly rent (starting)</span>
+          <span class="value" id="resRentMonthly"></span>
+        </div>
+
+        <hr>
+
+        <div class="result-row">
+          <span>Total cash out for owning over horizon (payments + down payment + closing)</span>
+          <span class="value" id="resOwnerTotalHorizon"></span>
+        </div>
+        <div class="result-row">
+          <span>Total rent paid over horizon (with increases)</span>
+          <span class="value" id="resRentTotalHorizon"></span>
+        </div>
+
+        <div class="result-row">
+          <span>Estimated future home value (with appreciation)</span>
+          <span class="value" id="resFutureValue"></span>
+        </div>
+        <div class="result-row">
+          <span>Estimated equity after horizon</span>
+          <span class="value" id="resEquity"></span>
+        </div>
+        <div class="result-row">
+          <span>Net cost of owning after equity (before tax savings)</span>
+          <span class="value" id="resNetOwnerCost"></span>
+        </div>
+
+        <div class="result-row">
+          <span>Estimated tax savings over horizon (interest + property tax)</span>
+          <span class="value" id="resTaxSavings"></span>
+        </div>
+
+        <div class="result-row">
+          <span>Net cost of owning after equity and tax savings</span>
+          <span class="value" id="resNetOwnerCostAfterTax"></span>
+        </div>
+
+        <div class="highlight" id="resSummary"></div>
+
+        <div class="footnote">
+          Tax savings are estimated by applying your combined marginal tax rate to mortgage interest and
+          property taxes over the chosen time horizon. Actual tax benefits depend on your ability to itemize
+          deductions, current tax law, and your specific situation. This tool is for educational purposes and
+          is not tax or financial advice. For a detailed analysis, talk to your tax professional and Real Time Realty.
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      © <span id="yearSpan"></span> Real Time Realty. All rights reserved.
+    </footer>
+  </div>
+
+  <script>
+    function formatCurrency(value) {
+      if (!isFinite(value)) return "-";
+      return value.toLocaleString(undefined, {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: 0
+      });
+    }
+
+    function mortgagePayment(principal, annualRatePct, years) {
+      var r = (annualRatePct / 100) / 12;
+      var n = years * 12;
+      if (r === 0) {
+        return principal / n;
+      }
+      var numerator = r * Math.pow(1 + r, n);
+      var denominator = Math.pow(1 + r, n) - 1;
+      return principal * (numerator / denominator);
+    }
+
+    function remainingBalance(loanAmount, annualRatePct, years, paymentsMade) {
+      var r = (annualRatePct / 100) / 12;
+      var N = years * 12;
+      if (paymentsMade >= N) return 0;
+      if (r === 0) {
+        return loanAmount * (1 - paymentsMade / N);
+      }
+      var num = Math.pow(1 + r, N) - Math.pow(1 + r, paymentsMade);
+      var den = Math.pow(1 + r, N) - 1;
+      return loanAmount * (num / den);
+    }
+
+    function calculateTotals() {
+      var homePrice = parseFloat(document.getElementById("homePrice").value) || 0;
+      var downPaymentPct = parseFloat(document.getElementById("downPaymentPct").value) || 0;
+      var interestRate = parseFloat(document.getElementById("interestRate").value) || 0;
+      var loanTerm = parseFloat(document.getElementById("loanTerm").value) || 30;
+      var propertyTaxRate = parseFloat(document.getElementById("propertyTaxRate").value) || 0;
+      var homeInsuranceYear = parseFloat(document.getElementById("homeInsuranceYear").value) || 0;
+      var maintenanceRate = parseFloat(document.getElementById("maintenanceRate").value) || 0;
+      var hoaFees = parseFloat(document.getElementById("hoaFees").value) || 0;
+      var appreciationRate = parseFloat(document.getElementById("appreciationRate").value) || 0;
+      var taxRateInput = parseFloat(document.getElementById("taxRate").value) || 0;
+      var taxRate = taxRateInput / 100;
+
+      var monthlyRent = parseFloat(document.getElementById("monthlyRent").value) || 0;
+      var rentGrowthRate = parseFloat(document.getElementById("rentGrowthRate").value) || 0;
+      var horizonYears = parseFloat(document.getElementById("horizonYears").value) || 1;
+      var closingCosts = parseFloat(document.getElementById("closingCosts").value) || 0;
+      var pmiRate = parseFloat(document.getElementById("pmiRate").value) || 0;
+
+      var downPayment = homePrice * (downPaymentPct / 100);
+      var loanAmount = homePrice - downPayment;
+
+      var monthlyMortgage = mortgagePayment(loanAmount, interestRate, loanTerm);
+      var taxMonthly = (homePrice * (propertyTaxRate / 100)) / 12;
+      var insuranceMonthly = homeInsuranceYear / 12;
+      var maintenanceMonthly = (homePrice * (maintenanceRate / 100)) / 12;
+
+      var pmiMonthly = 0;
+      if (downPaymentPct < 20 && pmiRate > 0) {
+        pmiMonthly = (loanAmount * (pmiRate / 100)) / 12;
+      }
+
+      var ownerMonthlyTotal = monthlyMortgage + taxMonthly + insuranceMonthly + maintenanceMonthly + hoaFees + pmiMonthly;
+
+      var months = Math.round(horizonYears * 12);
+      var ownerTotalPayments = ownerMonthlyTotal * months + downPayment + closingCosts;
+
+      // Rent total with annual increases
+      var currentRent = monthlyRent;
+      var rentTotal = 0;
+      for (var m = 0; m < months; m++) {
+        rentTotal += currentRent;
+        if ((m + 1) % 12 === 0) {
+          currentRent = currentRent * (1 + rentGrowthRate / 100);
+        }
+      }
+
+      // Future home value and equity
+      var futureHomeValue = homePrice * Math.pow(1 + appreciationRate / 100, horizonYears);
+      var paymentsMade = Math.min(months, loanTerm * 12);
+      var loanBalance = remainingBalance(loanAmount, interestRate, loanTerm, paymentsMade);
+      var equity = Math.max(futureHomeValue - loanBalance, 0);
+      var netOwnerCost = ownerTotalPayments - equity;
+
+      // Estimate tax savings: interest + property tax over horizon
+      var termMonths = loanTerm * 12;
+      var monthsForInterest = Math.min(months, termMonths);
+      var balance = loanAmount;
+      var r = (interestRate / 100) / 12;
+      var totalInterest = 0;
+
+      if (loanAmount > 0 && r > 0 && monthsForInterest > 0) {
+        for (var i = 0; i < monthsForInterest; i++) {
+          var interestPortion = balance * r;
+          if (interestPortion < 0) interestPortion = 0;
+          var principalPortion = monthlyMortgage - interestPortion;
+          if (principalPortion > balance) principalPortion = balance;
+          balance -= principalPortion;
+          totalInterest += interestPortion;
+          if (balance <= 0) break;
+        }
+      }
+
+      var propertyTaxHorizon = taxMonthly * months;
+      var deductibleAmount = totalInterest + propertyTaxHorizon;
+      var taxSavings = deductibleAmount * taxRate;
+      if (!isFinite(taxSavings) || taxSavings < 0) taxSavings = 0;
+
+      var netOwnerCostAfterTax = netOwnerCost - taxSavings;
+
+      // Outputs
+      document.getElementById("resDownPayment").textContent = formatCurrency(downPayment);
+      document.getElementById("resLoanAmount").textContent = formatCurrency(loanAmount);
+      document.getElementById("resMortgagePayment").textContent = formatCurrency(monthlyMortgage);
+      document.getElementById("resTaxMonthly").textContent = formatCurrency(taxMonthly);
+      document.getElementById("resInsuranceMonthly").textContent = formatCurrency(insuranceMonthly);
+      document.getElementById("resMaintenanceMonthly").textContent = formatCurrency(maintenanceMonthly);
+      document.getElementById("resPmiMonthly").textContent = pmiMonthly > 0 ? formatCurrency(pmiMonthly) : "None";
+      document.getElementById("resHoaMonthly").textContent = formatCurrency(hoaFees);
+      document.getElementById("resOwnerTotalMonthly").textContent = formatCurrency(ownerMonthlyTotal);
+      document.getElementById("resRentMonthly").textContent = formatCurrency(monthlyRent);
+
+      document.getElementById("resOwnerTotalHorizon").textContent = formatCurrency(ownerTotalPayments);
+      document.getElementById("resRentTotalHorizon").textContent = formatCurrency(rentTotal);
+      document.getElementById("resFutureValue").textContent = formatCurrency(futureHomeValue);
+      document.getElementById("resEquity").textContent = formatCurrency(equity);
+      document.getElementById("resNetOwnerCost").textContent = formatCurrency(netOwnerCost);
+      document.getElementById("resTaxSavings").textContent = formatCurrency(taxSavings);
+      document.getElementById("resNetOwnerCostAfterTax").textContent = formatCurrency(netOwnerCostAfterTax);
+
+      var summary = "";
+      if (!isFinite(ownerTotalPayments) || !isFinite(rentTotal)) {
+        summary = "Please check your inputs. Some values are missing or invalid.";
+      } else {
+        summary =
+          "Over " + horizonYears + " years, your total cash out for owning is about " +
+          formatCurrency(ownerTotalPayments) + ", compared with " +
+          formatCurrency(rentTotal) + " in rent payments. " +
+          "With an assumed " + appreciationRate.toFixed(1) +
+          "% annual appreciation, you could build roughly " + formatCurrency(equity) +
+          " in home equity. ";
+
+        if (taxRate > 0 && taxSavings > 0) {
+          summary +=
+            "Based on a " + taxRateInput.toFixed(0) +
+            "% combined marginal tax rate, your estimated tax savings from mortgage interest and property tax over this period are about " +
+            formatCurrency(taxSavings) + ". " +
+            "After accounting for both equity and these estimated tax savings, the net cost of owning is about " +
+            formatCurrency(netOwnerCostAfterTax) + ".";
+        } else {
+          summary +=
+            "After accounting for that equity, the net cost of owning is about " +
+            formatCurrency(netOwnerCost) + ".";
+        }
+      }
+
+      document.getElementById("resSummary").textContent = summary;
+      document.getElementById("results").style.display = "block";
+    }
+
+    document.getElementById("calculateBtn").addEventListener("click", calculateTotals);
+    document.getElementById("yearSpan").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
