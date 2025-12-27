@@ -262,10 +262,13 @@
       justify-content: space-between;
       margin: 4px 0;
       font-size: 0.95rem;
+      gap: 12px;
     }
 
     .result-row span.value {
       font-weight: 600;
+      text-align: right;
+      white-space: nowrap;
     }
 
     .highlight {
@@ -290,14 +293,24 @@
       color: #6b7280;
       padding: 10px 8px 18px;
     }
+
+    .status {
+      margin-top: 8px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: #ffffff;
+      border: 1px dashed #c5d6ff;
+      font-size: 0.9rem;
+      color: #374151;
+    }
   </style>
 </head>
+
 <body>
   <div class="page">
     <header>
       <div class="header-inner">
         <div class="logo-wrap">
-          <!-- Your logo -->
           <img src="RTR_logo.jpg" alt="Real Time Realty Logo">
         </div>
         <div class="brand-text">
@@ -320,6 +333,7 @@
           <li>Compare total cash out, projected equity, and estimated tax savings.</li>
         </ul>
       </div>
+
       <div>
         <div class="cta-box">
           <strong>Want a personalized plan?</strong>
@@ -418,9 +432,7 @@
           </div>
 
           <div class="field">
-            <label for="taxRate">
-              Combined marginal tax rate (federal + state)
-            </label>
+            <label for="taxRate">Combined marginal tax rate (federal + state)</label>
             <div class="inline-suffix">
               <input type="number" id="taxRate" value="25" min="0" max="50" step="1" />
               <span>% &nbsp; (0 if you don’t itemize)</span>
@@ -474,7 +486,7 @@
       </div>
 
       <div class="actions">
-        <button id="calculateBtn">Calculate</button>
+        <button id="calculateBtn" type="button">Calculate</button>
       </div>
 
       <div id="results" class="results" style="display: none;">
@@ -569,6 +581,29 @@
           is not tax or financial advice. For a detailed analysis, talk to your tax professional and Real Time Realty.
         </div>
       </div>
+
+      <!-- Email section (shown after calculation) -->
+      <div class="card" id="emailCard" style="margin-top:16px; display:none;">
+        <h2>Email my results</h2>
+
+        <div class="grid grid-2">
+          <div class="field">
+            <label for="resultsName">Your name</label>
+            <input type="text" id="resultsName" placeholder="Your name" />
+          </div>
+
+          <div class="field">
+            <label for="resultsEmail">Email address</label>
+            <input type="email" id="resultsEmail" placeholder="you@example.com" />
+          </div>
+        </div>
+
+        <div class="actions" style="margin-top:10px;">
+          <button id="emailResultsBtn" type="button">Email Me My Results</button>
+        </div>
+
+        <div class="status" id="emailStatus" style="display:none;"></div>
+      </div>
     </main>
 
     <footer>
@@ -576,7 +611,15 @@
     </footer>
   </div>
 
+  <!-- EmailJS -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <script>
+    emailjs.init("Sb_BLBEgYBSgMcZZU");
+  </script>
+
+  <script>
+    let lastResults = null;
+
     function formatCurrency(value) {
       if (!isFinite(value)) return "-";
       return value.toLocaleString(undefined, {
@@ -737,10 +780,72 @@
 
       document.getElementById("resSummary").textContent = summary;
       document.getElementById("results").style.display = "block";
+
+      // Store last results for emailing
+      lastResults = {
+        ownerMonthlyTotal: ownerMonthlyTotal,
+        monthlyRent: monthlyRent,
+        equity: equity,
+        netOwnerCostAfterTax: netOwnerCostAfterTax,
+        horizonYears: horizonYears,
+        summary: summary
+      };
+
+      // Show email section and reset status
+      document.getElementById("emailCard").style.display = "block";
+      var status = document.getElementById("emailStatus");
+      status.style.display = "none";
+      status.textContent = "";
     }
 
     document.getElementById("calculateBtn").addEventListener("click", calculateTotals);
     document.getElementById("yearSpan").textContent = new Date().getFullYear();
+
+    // Email button handler
+    document.getElementById("emailResultsBtn").addEventListener("click", function () {
+      const name = (document.getElementById("resultsName").value || "").trim();
+      const email = (document.getElementById("resultsEmail").value || "").trim();
+
+      if (!lastResults) {
+        alert("Please click Calculate first to generate your results.");
+        return;
+      }
+      if (!name) {
+        alert("Please enter your name.");
+        document.getElementById("resultsName").focus();
+        return;
+      }
+      if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
+        alert("Please enter a valid email address.");
+        document.getElementById("resultsEmail").focus();
+        return;
+      }
+
+      const status = document.getElementById("emailStatus");
+      status.style.display = "block";
+      status.textContent = "Sending your results…";
+
+      const params = {
+        to_name: name,
+        to_email: email,
+        horizon_years: String(lastResults.horizonYears),
+        monthly_own: formatCurrency(lastResults.ownerMonthlyTotal),
+        monthly_rent: formatCurrency(lastResults.monthlyRent),
+        equity: formatCurrency(lastResults.equity),
+        net_cost: formatCurrency(lastResults.netOwnerCostAfterTax),
+        summary: lastResults.summary
+      };
+
+      emailjs
+        .send("service_12me5b7", "template_uf26l0h", params)
+        .then(() => {
+          status.textContent = "Sent! Check your inbox (and Promotions/Spam just in case).";
+        })
+        .catch((err) => {
+          console.error(err);
+          status.textContent = "Error sending. Please try again in a moment.";
+        });
+    });
   </script>
 </body>
 </html>
